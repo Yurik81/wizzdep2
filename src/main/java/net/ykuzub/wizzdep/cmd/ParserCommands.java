@@ -1,11 +1,14 @@
 package net.ykuzub.wizzdep.cmd;
 
+import net.ykuzub.wizzdep.core.ActionConfig;
 import net.ykuzub.wizzdep.exceptions.ValidationException;
 import net.ykuzub.wizzdep.help.ValidatorHelp;
-import net.ykuzub.wizzdep.core.ActionConfig;
 import org.apache.commons.cli.*;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Properties;
 
@@ -47,6 +50,10 @@ public class ParserCommands {
 
         line = parser.parse(options, args);
 
+        if (args.length == 0) {
+            actionConfig.setNeedHelp();
+            return;
+        }
 
         Iterator<Option> iterator = line.iterator();
         while (iterator.hasNext()) {
@@ -54,6 +61,7 @@ public class ParserCommands {
             String longOption = opt.getLongOpt().toLowerCase();
             String param = opt.getValue().trim();
             switch (longOption) {
+
                 case Cmd.ACTION: {
                     actionConfig.setAction(ValidatorHelp.getValidatedActionParam(param));
                     break;
@@ -88,17 +96,30 @@ public class ParserCommands {
                     actionConfig.setPassword(ValidatorHelp.getValidatedPassword(param));
                     break;
                 }
+
+                case Cmd.HELP:
+                default: {
+                    actionConfig.setNeedHelp();
+                    break;
+                }
             }
         }
     }
 
-    public void setPropepertiesFromFile(String pathToConf) {
+    public void setPropepertiesFromFile(String pathToConf) throws ValidationException {
+        if (pathToConf == null || pathToConf.isEmpty()) {
+            return;
+        }
         Properties properties = readPropertiesFromFile(pathToConf);
         String hostName = properties.getProperty(Cmd.HOSTNAME);
         String userName = properties.getProperty(Cmd.USER);
         String password = properties.getProperty(Cmd.PASSWORD);
 
         if (actionConfig.getHostName() == null) {
+            if (hostName.isEmpty() || hostName == null) {
+                actionConfig.setNeedHelp();
+                throw new ValidationException("Host name can't be empty. Check config file again.");
+            }
             try {
                 actionConfig.setHostName(ValidatorHelp.getValidatedHostName(hostName));
             } catch (ValidationException e) {
@@ -107,20 +128,21 @@ public class ParserCommands {
         }
 
         if (actionConfig.getUser() == null) {
+            if (userName.isEmpty() || userName == null) {
+                actionConfig.setNeedHelp();
+                throw new ValidationException("User name can't be empty. Check config file again.");
+            }
             try {
-                actionConfig.setUser(ValidatorHelp.getValidatedHostName(userName));
+                actionConfig.setUser(ValidatorHelp.getValidatedUser(userName));
             } catch (ValidationException e) {
                 e.printStackTrace();
             }
         }
 
         if (actionConfig.getPassword() == null) {
-            try {
-                actionConfig.setPassword(ValidatorHelp.getValidatedHostName(password));
-            } catch (ValidationException e) {
-                e.printStackTrace();
-            }
+            actionConfig.setPassword(ValidatorHelp.getValidatedPassword(password));
         }
+
     }
 
     private Properties readPropertiesFromFile(String path) {
@@ -150,4 +172,10 @@ public class ParserCommands {
         return properties;
     }
 
+    public void showHelpInfo() {
+        if (actionConfig != null) {
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp("WizzTool", options);
+        }
+    }
 }

@@ -4,8 +4,6 @@ import net.ykuzub.wizzdep.GlassFishEnv;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.HttpURLConnection;
 import java.util.stream.Stream;
 
 /**
@@ -43,54 +41,72 @@ public class GlassFishServerService {
         String command = GlassFishEnv.ASADMIN_PATH + " start-domain " + GlassFishEnv.DEF_DOMAIN;
         Stream<String> response = consoleExecutor.execute(command);
 
+        /* hust a mock here*/
         // TODO: Parse response here, if response contains "success result" and vise versa in the stream
-        if (true /* temp. mock here*/) {
-            serverUp = !serverUp;
+        if (serverUp) {
+            System.out.println("The applicaton server is already running.");
+            return;
+        } else {
+            System.out.println("The application server is strating running. Please, wait a minute.");
+            serverUp = true;
         }
     }
 
     public void stopServer() throws IOException {
-        String command = GlassFishEnv.ASADMIN_PATH + " stop-domain "+GlassFishEnv.DEF_DOMAIN;
+        String command = GlassFishEnv.ASADMIN_PATH + " stop-domain " + GlassFishEnv.DEF_DOMAIN;
         Stream<String> response = consoleExecutor.execute(command);
 
+        /* just a mock below*/
         // TODO: Parse response here, if response contains "success result" and vise versa in the stream
-        if (true/* temp. mock here*/) {
-            serverUp = !serverUp;
+        if (serverUp) {
+            System.out.println("The application server is  stopping. Please, wait a few seconds.");
+            serverUp = false;
+        } else {
+            System.out.println("The application server stopped successfully.");
+            serverUp = true;
+        }
+
+    }
+
+    public void deploy(String pathToWar) throws IOException {
+        String command = GlassFishEnv.ASADMIN_PATH + " deploy " + pathToWar;
+        Stream<String> response = consoleExecutor.execute(command);
+
+        // Just mocking below
+        // TODO: Parse response here, if response contains "success result" and vise versa in the stream
+        if (lastDeployedStatus == true) {
+            System.out.println("The application is already deployed on the server.");
+        } else {
+            lastDeployedStatus = true;
+            System.out.println("The application has been deployed successfully.");
         }
     }
 
-    public void deploy (String pathToWar) throws IOException {
-        String command = GlassFishEnv.ASADMIN_PATH + " deploy "+ pathToWar;
+    public void undeploy(String appName) throws IOException {
+        String command = GlassFishEnv.ASADMIN_PATH + " deploy " + appName;
         Stream<String> response = consoleExecutor.execute(command);
 
+        // Just a mock below
         // TODO: Parse response here, if response contains "success result" and vise versa in the stream
-        if (true /* temp. mock here*/) {
-            lastDeployedStatus = !lastDeployedStatus;
+        if (lastDeployedStatus == true) {
+            System.out.println("The application has been undeployed successfully.");
+            lastDeployedStatus = false;
+        } else {
+            System.out.println("The application is already undeployed.");
         }
     }
 
-    public void undeploy (String appName) throws IOException {
-        String command = GlassFishEnv.ASADMIN_PATH + " deploy "+ appName;
-        Stream<String> response = consoleExecutor.execute(command);
-
-        // TODO: Parse response here, if response contains "success result" and vise versa in the stream
-        if (true /* temp. mock here*/) {
-            lastDeployedStatus = !lastDeployedStatus;
-        }
-    }
-
-    public void isAppDeployed(String appName) throws IOException {
+    public boolean isAppDeployed(String appName) throws IOException {
         String command = GlassFishEnv.ASADMIN_PATH + " list-applications";
         Stream<String> response = consoleExecutor.execute(command);
 
+        // just a mock below
         // TODO: Parse response here, if response contains "success result" and vise versa in the stream
-        if (true /* temp. mock here*/) {
-            serverUp = !serverUp;
-        }
+        return lastDeployedStatus;
     }
 
     public boolean getHttpResponse(String hostName, String appName) throws MalformedURLException {
-        URL url = new URL("http", hostName, "/"+appName);
+/*        URL url = new URL("http", hostName, "/"+appName);
         try {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
@@ -101,6 +117,9 @@ public class GlassFishServerService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return true;
+        return true;*/
+
+        //just a mock below
+        return (lastDeployedStatus ? true : false);
     }
 }

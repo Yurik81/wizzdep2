@@ -13,7 +13,7 @@ import java.io.IOException;
  */
 public class WizzTool {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ValidationException {
         ParserCommands parserCommands = null;
         try {
             parserCommands = new ParserCommands(args);
@@ -26,6 +26,10 @@ public class WizzTool {
         }
         ActionConfig actionConfig = parserCommands.getActionConfig();
         parserCommands.setPropepertiesFromFile(actionConfig.getPathToConfig());
+        if (actionConfig.getNeedHelp()) {
+            parserCommands.showHelpInfo();
+            return;
+        }
         ActionRunner.runAction(actionConfig);
     }
 }

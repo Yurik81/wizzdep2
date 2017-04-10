@@ -13,6 +13,7 @@ public class ActionConfig {
     private String user;
     private String password;
     private String appName;
+    private boolean needHelp;
 
     public EAction getAction() {
         return action;
@@ -68,5 +69,13 @@ public class ActionConfig {
 
     public void setAppName(String appName) {
         this.appName = appName;
+    }
+
+    public void setNeedHelp() {
+        needHelp = true;
+    }
+
+    public boolean getNeedHelp() {
+        return needHelp;
     }
 }

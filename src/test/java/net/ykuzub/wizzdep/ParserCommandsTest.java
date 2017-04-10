@@ -9,9 +9,10 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.UnrecognizedOptionException;
 import org.junit.Test;
 
+import java.net.URISyntaxException;
+
 /**
  * Created by ykuzub on 07.04.2017.
- * <p>
  * Test coverage is very small.
  * In production all possible cases must be covered.
  * These tests are just examples
@@ -130,7 +131,7 @@ public class ParserCommandsTest {
         Assert.assertEquals(args[1], actionConfig.getAction());
     }
 
-    @Test (expected = UnrecognizedOptionException.class)
+    @Test(expected = UnrecognizedOptionException.class)
     public void testUnrecognizedOption() throws ValidationException, ParseException {
         String[] args = {
                 "--assadasda",
@@ -139,4 +140,13 @@ public class ParserCommandsTest {
         ActionConfig actionConfig = parserCommands.getActionConfig();
         Assert.assertEquals(args[1], actionConfig.getAction());
     }
+
+    @Test
+    public void testNoAnyParams() throws ValidationException, ParseException, URISyntaxException {
+        String[] args = new String[0];
+        ParserCommands parserCommands = new ParserCommands(args);
+        ActionConfig actionConfig = parserCommands.getActionConfig();
+        Assert.assertTrue(actionConfig.getNeedHelp());
+    }
+
 }
